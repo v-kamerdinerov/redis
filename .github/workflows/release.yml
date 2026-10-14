@@ -1,12 +1,9 @@
 name: Release
 
 on:
+  push:
+    branches: ["release-*"]
   workflow_dispatch:
-    inputs:
-      tag:
-        description: Release tag
-        required: true
-        default: "6.2.24"
 
 permissions:
   contents: write
@@ -14,11 +11,14 @@ permissions:
 jobs:
   build-linux-amd64:
     runs-on: ubuntu-22.04
-    env:
-      TAG: ${{ inputs.tag }}
-      DIST: redis-${{ inputs.tag }}-linux-amd64
     steps:
     - uses: actions/checkout@v4
+
+    - name: version
+      run: |
+        TAG=$(sed -n 's/^#define REDIS_VERSION "\(.*\)"/\1/p' src/version.h)
+        echo "TAG=$TAG" >> "$GITHUB_ENV"
+        echo "DIST=redis-$TAG-linux-amd64" >> "$GITHUB_ENV"
 
     - name: make
       run: make -j"$(nproc)"
