@@ -21,7 +21,9 @@ jobs:
         echo "DIST=redis-$TAG-linux-amd64" >> "$GITHUB_ENV"
 
     - name: make
-      run: make -j"$(nproc)"
+      run: |
+        docker run --rm -v "$PWD:/src" -w /src almalinux:8 \
+          sh -c 'dnf install -y -q gcc make which && make -j"$(nproc)"'
 
     - name: package
       run: |
