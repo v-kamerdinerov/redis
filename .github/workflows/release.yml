@@ -29,10 +29,10 @@ jobs:
         for bin in redis-server redis-cli redis-benchmark; do
           cp "src/$bin" "$DIST/$bin"
           strip "$DIST/$bin"
-          cp "$DIST/$bin" "$bin-linux-amd64"
         done
         tar czf "$DIST.tar.gz" "$DIST"
-        sha256sum "$DIST.tar.gz" redis-{server,cli,benchmark}-linux-amd64 > sha256sums.txt
+        sha256sum "$DIST.tar.gz" > sha256sums.txt
+        (cd "$DIST" && sha256sum redis-server redis-cli redis-benchmark) >> sha256sums.txt
 
     - name: release
       env:
@@ -41,4 +41,4 @@ jobs:
         gh release view "$TAG" >/dev/null 2>&1 || \
           gh release create "$TAG" --target "$GITHUB_SHA" --title "$TAG" --notes "Redis $TAG binaries for linux/amd64"
         gh release upload "$TAG" --clobber \
-          "$DIST.tar.gz" redis-{server,cli,benchmark}-linux-amd64 sha256sums.txt
+          "$DIST.tar.gz" "$DIST"/redis-{server,cli,benchmark} sha256sums.txt
