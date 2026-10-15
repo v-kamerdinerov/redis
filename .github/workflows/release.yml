@@ -23,7 +23,7 @@ jobs:
     - name: make
       run: |
         docker run --rm -v "$PWD:/src" -w /src almalinux:8 \
-          sh -c 'dnf install -y -q gcc make which && make -j"$(nproc)"'
+          sh -c 'dnf install -y -q gcc make which systemd-devel pkgconf-pkg-config && make -j"$(nproc)" USE_SYSTEMD=yes'
 
     - name: package
       run: |
